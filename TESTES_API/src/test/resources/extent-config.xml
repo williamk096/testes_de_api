@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extentreports>
+    <configuration>
+        <theme>dark</theme>
+        <encoding>utf-8</encoding>
+        <protocol>https</protocol>
+        <timelineEnabled>true</timelineEnabled>
+        <documentTitle>Relatório de Testes API</documentTitle>
+        <reportName>Relatório de Testes API</reportName>
+    </configuration>
+</extentreports>
+

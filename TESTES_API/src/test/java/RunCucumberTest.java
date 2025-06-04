@@ -6,8 +6,11 @@ import io.cucumber.junit.CucumberOptions;
 @CucumberOptions(
     features = "src/test/resources/features",
     glue = {"steps"},
-    plugin = {"pretty", "html:target/cucumber-report.html"}
+    plugin = {
+        "pretty",
+        "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm",
+        "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
+    }
 )
 public class RunCucumberTest {
 }
-
