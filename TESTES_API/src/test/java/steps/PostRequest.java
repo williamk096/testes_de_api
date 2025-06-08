@@ -1,3 +1,4 @@
+// Classe responsável pelos testes de criação de usuário via método POST na API Reqres.in
 package steps;
 
 import io.cucumber.java.en.And;
@@ -11,12 +12,26 @@ import io.restassured.response.Response;
 import io.restassured.RestAssured;
 import static org.junit.Assert.*;
 
+/**
+ * Classe de steps para o cenário de criação de usuário via POST.
+ * Utiliza RestAssured para enviar requisições HTTP e Cucumber para BDD.
+ */
 public class PostRequest {
+    // Armazena a resposta da requisição POST
     private static Response response;
+    // Armazena o corpo (body) da requisição em formato JSON
     private static String jsonBody;
+    // Armazena a URL completa do endpoint
     private static String url;
+    // Armazena a especificação da requisição (headers, body, etc.)
     private static io.restassured.specification.RequestSpecification request;
 
+    /**
+     * Prepara a requisição POST com os dados fornecidos na tabela.
+     * Monta o JSON e configura os headers necessários.
+     * @param endpoint Endpoint da API (ex: /api/users)
+     * @param dataTable Tabela de dados do Cucumber (name, job)
+     */
     @Given("que envio uma requisição POST para {string} com os dados:")
     public void que_envio_uma_requisicao_post_para_com_os_dados(String endpoint, io.cucumber.datatable.DataTable dataTable) {
         url = "https://reqres.in" + endpoint;
@@ -31,17 +46,27 @@ public class PostRequest {
                 .log().all(); // log do request
     }
 
+    /**
+     * Executa a requisição POST para criar o usuário.
+     * O log do response é exibido para facilitar o debug.
+     */
     @When("a requisição for processada")
     public void a_requisicao_for_processada() {
         response = request.post(url);
         response.then().log().all(); // log do response
     }
 
+    /**
+     * Valida se o status da resposta é 201 (Created), indicando sucesso na criação.
+     */
     @Then("o status da resposta deve ser 201")
     public void o_status_da_resposta_deve_ser_201() {
-        assertEquals(200, response.getStatusCode());
+        assertEquals(201, response.getStatusCode());
     }
 
+    /**
+     * Valida se a resposta contém os dados do usuário criado e os campos id e createdAt.
+     */
     @And("a resposta deve conter os dados do usuário criado")
     public void a_resposta_deve_conter_os_dados_do_usuario_criado() {
         assertEquals("morpheus", response.jsonPath().getString("name"));
