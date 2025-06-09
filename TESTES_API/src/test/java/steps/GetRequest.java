@@ -1,11 +1,21 @@
+
+/*
+ * Alteração: agora esta classe utiliza a configuração centralizada do RestAssured
+ * via util.RestAssuredConfig para baseUri, headers e autenticação.
+ * Basta inicializar o request com RestAssuredConfig.defaultRequestSpec().
+ */
+
 // Classe responsável pelos testes de consulta (GET) na API Reqres.in
 package steps;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.junit.BeforeClass;
+import util.RestAssuredConfig;
 import java.util.Map;
 import java.util.List;
 import static io.restassured.RestAssured.*;
@@ -22,12 +32,25 @@ public class GetRequest {
     private static RequestSpecification request;
 
     /**
+     * Configuração global para todos os testes desta classe.
+     * Define a base URI e os headers padrão para as requisições GET.
+     * Usa configuração centralizada do RestAssured
+     * via util.RestAssuredConfig para baseUri, headers e autenticação.
+     * Basta inicializar o request com RestAssuredConfig.defaultRequestSpec().
+     */
+    @BeforeClass
+    public static void setup() {
+        // Configuração centralizada
+        RestAssured.requestSpecification = RestAssuredConfig.defaultRequestSpec();
+    }
+
+    /**
      * Prepara a requisição GET configurando os headers necessários.
+     * Inicializa request com configuração centralizada
      */
     @Given("the API is running")
     public void the_api_is_running() {
-        request = given()
-                .header("x-api-key", "reqres-free-v1");
+        request = RestAssuredConfig.defaultRequestSpec();
     }
 
     /**

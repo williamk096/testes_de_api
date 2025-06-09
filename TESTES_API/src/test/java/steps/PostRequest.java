@@ -10,6 +10,8 @@ import io.cucumber.java.pt.Quando;
 import io.cucumber.java.pt.Entao;
 import io.restassured.response.Response;
 import io.restassured.RestAssured;
+import io.cucumber.java.Before;
+import util.RestAssuredConfig;
 import static org.junit.Assert.*;
 
 /**
@@ -27,6 +29,19 @@ public class PostRequest {
     private static io.restassured.specification.RequestSpecification request;
 
     /**
+     * Configuração global para todos os testes desta classe.
+     * Define a base URI.
+     * Usa configuração centralizada do RestAssured
+     * via util.RestAssuredConfig para baseUri, headers e autenticação.
+     * Basta inicializar o request com RestAssuredConfig.defaultRequestSpec().
+     *
+     */
+    @Before
+    public void setup() {
+        request = RestAssuredConfig.defaultRequestSpec();
+    }
+
+    /**
      * Prepara a requisição POST com os dados fornecidos na tabela.
      * Monta o JSON e configura os headers necessários.
      * @param endpoint Endpoint da API (ex: /api/users)
@@ -34,16 +49,11 @@ public class PostRequest {
      */
     @Given("que envio uma requisição POST para {string} com os dados:")
     public void que_envio_uma_requisicao_post_para_com_os_dados(String endpoint, io.cucumber.datatable.DataTable dataTable) {
-        url = "https://reqres.in" + endpoint;
+        url = endpoint; // Usar apenas o endpoint relativo
         String name = dataTable.cell(1, 0);
         String job = dataTable.cell(1, 1);
         jsonBody = String.format("{\"name\":\"%s\",\"job\":\"%s\"}", name, job);
-        request = RestAssured.given()
-                .header("x-api-key", "reqres-free-v1")
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .body(jsonBody)
-                .log().all(); // log do request
+        request.body(jsonBody);
     }
 
     /**
@@ -52,7 +62,9 @@ public class PostRequest {
      */
     @When("a requisição for processada")
     public void a_requisicao_for_processada() {
-        response = request.post(url);
+//        System.out.println("[DEBUG] baseURI atual: " + RestAssured.baseURI);
+//        System.out.println("[DEBUG] Endpoint usado: " + url);
+        response = request.post(url); // Usar apenas o endpoint relativo
         response.then().log().all(); // log do response
     }
 
