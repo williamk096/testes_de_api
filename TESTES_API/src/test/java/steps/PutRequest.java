@@ -6,6 +6,8 @@ import io.cucumber.java.pt.Quando;
 import io.cucumber.java.pt.Entao;
 import io.restassured.response.Response;
 import io.restassured.RestAssured;
+import io.cucumber.java.Before;
+import util.RestAssuredConfig;
 import static org.junit.Assert.*;
 
 /**
@@ -23,6 +25,18 @@ public class PutRequest {
     private static io.restassured.specification.RequestSpecification request;
 
     /**
+     * Configuração global para todos os testes desta classe.
+     * Define a base URI para as requisições.
+     *  Usa configuração centralizada do RestAssured
+     *  via util.RestAssuredConfig para baseUri, headers e autenticação.
+     *  Basta inicializar o request com RestAssuredConfig.defaultRequestSpec().
+     */
+    @Before
+    public void setup() {
+        request = RestAssuredConfig.defaultRequestSpec();
+    }
+
+    /**
      * Prepara a requisição PUT com os dados fornecidos na tabela.
      * Monta o JSON e configura os headers necessários.
      * @param endpoint Endpoint da API (ex: /api/users/2)
@@ -30,18 +44,13 @@ public class PutRequest {
      */
     @Dado("que envio uma requisição PUT para {string} com os dados:")
     public void que_envio_uma_requisicao_put_para_com_os_dados(String endpoint, io.cucumber.datatable.DataTable dataTable) {
-        url = "https://reqres.in" + endpoint;
+        url = endpoint; // Usar apenas o endpoint relativo
         String name = dataTable.cell(1, 0);
         String job = dataTable.cell(1, 1);
         // Monta o JSON do body
         jsonBody = String.format("{\"name\":\"%s\",\"job\":\"%s\"}", name, job);
         // Prepara a requisição com headers e body
-        request = RestAssured.given()
-                .header("x-api-key", "reqres-free-v1")
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .body(jsonBody)
-                .log().all();
+        request.body(jsonBody);
     }
 
     /**
@@ -50,6 +59,8 @@ public class PutRequest {
      */
     @Quando("a requisição PUT for processada")
     public void a_requisicao_put_for_processada() {
+//        System.out.println("[DEBUG] baseURI atual: " + RestAssured.baseURI);
+//        System.out.println("[DEBUG] Endpoint usado: " + url);
         response = request.put(url);
         response.then().log().all();
     }
