@@ -47,34 +47,50 @@ public class PutRequest {
         url = endpoint; // Usar apenas o endpoint relativo
         String name = dataTable.cell(1, 0);
         String job = dataTable.cell(1, 1);
-        // Monta o JSON do body
         jsonBody = String.format("{\"name\":\"%s\",\"job\":\"%s\"}", name, job);
-        // Prepara a requisição com headers e body
+        System.out.println("\n========== REQUEST ==========");
+        System.out.println("Método: PUT");
+        System.out.println("Endpoint: " + url);
+        System.out.println("Body: " + jsonBody);
         request.body(jsonBody);
     }
 
     /**
      * Executa a requisição PUT para atualizar o usuário.
-     * O log do response é exibido para facilitar o debug.
+     * Exibe logs organizados do response, incluindo status e body formatado (pretty print JSON).
+     * Se o body não for JSON válido, exibe o body bruto.
      */
     @Quando("a requisição PUT for processada")
     public void a_requisicao_put_for_processada() {
-//        System.out.println("[DEBUG] baseURI atual: " + RestAssured.baseURI);
-//        System.out.println("[DEBUG] Endpoint usado: " + url);
         response = request.put(url);
-        response.then().log().all();
+        System.out.println("\n========== RESPONSE ==========");
+        System.out.println("Status: " + response.getStatusCode());
+        try {
+            String prettyJson = new com.fasterxml.jackson.databind.ObjectMapper()
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsString(
+                    new com.fasterxml.jackson.databind.ObjectMapper().readTree(response.getBody().asString())
+                );
+            System.out.println("Body (JSON):\n" + prettyJson);
+        } catch (Exception e) {
+            System.out.println("Body: " + response.getBody().asString());
+        }
     }
 
     /**
      * Valida se o status da resposta é 200 (OK), indicando sucesso na atualização.
+     * Exibe log organizado da asserção do status code.
      */
     @Entao("o status da resposta deve ser 200")
     public void o_status_da_resposta_deve_ser_200() {
+        System.out.println("\n========== STATUS CODE ASSERTION ==========");
+        System.out.println("Expected: 200, Actual: " + response.getStatusCode());
         assertEquals(200, response.getStatusCode());
     }
 
     /**
      * Valida se a resposta contém os dados atualizados do usuário e o campo updatedAt.
+     * Garante que os campos obrigatórios estejam presentes e corretos.
      */
     @Entao("a resposta deve conter os dados atualizados do usuário")
     public void a_resposta_deve_conter_os_dados_atualizados_do_usuario() {

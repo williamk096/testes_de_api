@@ -1,4 +1,3 @@
-
 /*
  * Alteração: agora esta classe utiliza a configuração centralizada do RestAssured
  * via util.RestAssuredConfig para baseUri, headers e autenticação.
@@ -51,26 +50,47 @@ public class GetRequest {
     @Given("the API is running")
     public void the_api_is_running() {
         request = RestAssuredConfig.defaultRequestSpec();
+        System.out.println("\n========== REQUEST ==========");
+        System.out.println("Método: GET");
+        // Não é possível exibir headers diretamente do request, pois getHeaders() não existe.
+        // Se quiser exibir headers, use um Map ou configure manualmente.
     }
 
     /**
      * Executa a requisição GET para o endpoint informado.
+     * Exibe logs organizados do response, incluindo status e body formatado (pretty print JSON).
+     * Se o body não for JSON válido, exibe o body bruto.
      * @param url Endpoint completo da API
      */
     @When("I send a GET request to {string}")
     public void i_send_a_get_request_to(String url) {
+        System.out.println("Endpoint: " + url);
         response = request.get(url);
+        System.out.println("\n========== RESPONSE ==========");
+        System.out.println("Status: " + response.getStatusCode());
+        try {
+            String prettyJson = new com.fasterxml.jackson.databind.ObjectMapper()
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsString(
+                    new com.fasterxml.jackson.databind.ObjectMapper().readTree(response.getBody().asString())
+                );
+            System.out.println("Body (JSON):\n" + prettyJson);
+        } catch (Exception e) {
+            System.out.println("Body: " + response.getBody().asString());
+        }
     }
 
     /**
      * Valida se o status da resposta é o esperado e exibe o log do response.
      * Também chama a função de captura de elemento para exemplo.
+     * Exibe log organizado da asserção do status code.
      * @param statusCode Status esperado
      */
     @Then("the response status code should be {int}")
     public void the_response_status_code_should_be(Integer statusCode) {
+        System.out.println("\n========== STATUS CODE ASSERTION ==========");
+        System.out.println("Expected: " + statusCode + ", Actual: " + response.getStatusCode());
         assertEquals(statusCode.intValue(), response.getStatusCode());
-        response.then().log().all();
         capturar_elemento();
     }
 
